@@ -1,3 +1,5 @@
+import log from '../services/logger.service.mjs';
+
 /**
  *
  * @param {*} err
@@ -5,7 +7,7 @@
  * @returns the error that occurred with details, including error stack
  */
 const sendDevError = (err, res) => {
-    console.error(`Error: ${err}.\n============================\nStack:\n============================\n ${err.stack}`);
+    log.error(`Error: ${err}.\n============================\nStack:\n============================\n ${err.stack}`);
     return res.status(err.statusCode).json({
         status: err.status,
         error: err,
@@ -21,7 +23,7 @@ const sendDevError = (err, res) => {
  * @returns a friendly response with no stack trace if env is production
  */
 const sendProdError = (err, res) => {
-    console.error(`Error: ${err}.\n============================\nStack:\n============================\n ${err.stack}`);
+    log.error(`Error: ${err}.\n============================\nStack:\n============================\n ${err.stack}`);
     return res.status(err.statusCode).json({
         status: err.status,
         message: err.message

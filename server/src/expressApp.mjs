@@ -1,5 +1,6 @@
 import errorHandler from './controllers/error.controller.mjs';
 import express from 'express';
+
 const app = express();
 
 // eslint-disable-next-line
