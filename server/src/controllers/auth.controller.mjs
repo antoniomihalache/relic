@@ -1,4 +1,4 @@
-import { sendActivationEmail, removeUserIfActivationTimeExpired } from '../services/auth.service.mjs';
+import { sendActivationEmail, isUserStillEligible } from '../services/auth.service.mjs';
 import { getDb } from '../services/mongodb.service.mjs';
 import log from '../services/logger.service.mjs';
 import jwt from 'jsonwebtoken';
@@ -34,7 +34,7 @@ export const register = async function (req, res, next) {
             );
 
         if (userExists) {
-            await removeUserIfActivationTimeExpired(userExists);
+            await isUserStillEligible(userExists);
             return res.status(400).json({
                 status: 'fail',
                 message: 'Username or email address already in use.'
@@ -104,7 +104,13 @@ export const activateAccount = async function (req, res, next) {
             });
         }
 
-        await removeUserIfActivationTimeExpired(user);
+        const userIsValid = await isUserStillEligible(user);
+        if (!userIsValid) {
+            return res.status(400).json({
+                status: 'fail',
+                message: 'User not found or activation period expired.'
+            });
+        }
 
         const updateObj = {
             $set: {

@@ -37,13 +37,15 @@ export const sendActivationEmail = async function (req) {
     }
 };
 
-export const removeUserIfActivationTimeExpired = async function (user) {
+export const isUserStillEligible = async function (user) {
     try {
         if (!user.isAccountActivated && Date.now() > user.activateAccountExpires) {
             log.debug(`User ${user.username} found but activation token has expired. Removing it from db`);
             await getDb().collection('users').deleteOne({ id: user.id });
+            return false;
         } else {
             log.info(`User ${user.username} is still in activation period. Nothing to do here.`);
+            return true;
         }
     } catch (err) {
         log.error(`Could not remove user ${user.username} because of error: ${err}.\nStack: ${err.stack}`);
