@@ -2,6 +2,7 @@ import 'dotenv/config'; // load env variables
 
 import { connectDb } from './services/mongodb.service.mjs';
 import log from './services/logger.service.mjs';
+import { initLoops } from './loops/index.mjs';
 import https from 'https';
 import fs from 'fs';
 
@@ -33,6 +34,7 @@ connectDb().then(() => {
         ------------------------------------------------
         STARTING RELIC APP SERVER IN "${process.env.NODE_ENV.toUpperCase()}" ON PORT ${PORT}
         ------------------------------------------------`);
+        initLoops();
     });
 });
 
