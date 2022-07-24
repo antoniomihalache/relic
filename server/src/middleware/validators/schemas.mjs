@@ -10,7 +10,8 @@ const Schemas = {
         isAccountActivated: Joi.boolean().default(false),
         activateAccountExpires: Joi.number().allow(null).default(null),
         activateToken: Joi.string().allow(null).default(null),
-        creationTimestamp: Joi.date().iso().default(new Date().toISOString())
+        creationTimestamp: Joi.date().iso().default(new Date().toISOString()),
+        isLocked: Joi.boolean().default(false)
     })
 };
 
