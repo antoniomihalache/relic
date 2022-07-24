@@ -9,7 +9,7 @@ import log from '../services/logger.service.mjs';
 class RemoveAccountLoop {
     static name = 'Remove Inactivated Account';
 
-    static interval = 1000 * 60 * 60 * 24; // run every hour
+    static interval = 1000 * 60 * 60; // run every hour
 
     static async execute() {
         log.debug(`[Loop]: [ Executing Remove Inactivated Account looper. ]`);
