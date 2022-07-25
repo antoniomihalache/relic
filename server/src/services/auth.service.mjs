@@ -1,6 +1,7 @@
 import EmailService from '../services/email.service.mjs';
 import log from '../services/logger.service.mjs';
 import { getDb } from './mongodb.service.mjs';
+import config from '../config/config.mjs';
 import jwt from 'jsonwebtoken';
 
 const createActivationToken = async function (userId) {
@@ -9,7 +10,7 @@ const createActivationToken = async function (userId) {
         const token = jwt.sign({ id: userId }, process.env.JWT_ACCOUNT_ACTIVATION_SECRET, { expiresIn: '24h' });
         const validUntil = Date.now() + 24 * 60 * 60 * 1000; // next 24 h
         const updateObj = { $set: { activateToken: token, activateAccountExpires: validUntil } };
-        await getDb().collection('users').updateOne({ id: userId }, updateObj);
+        await getDb().collection(config.mongo.collections.users).updateOne({ id: userId }, updateObj);
 
         return token;
     } catch (err) {
@@ -41,7 +42,7 @@ export const isUserStillEligible = async function (user) {
     try {
         if (!user.isAccountActivated && Date.now() > user.activateAccountExpires) {
             log.debug(`User ${user.username} found but activation token has expired. Removing it from db`);
-            await getDb().collection('users').deleteOne({ id: user.id });
+            await getDb().collection(config.mongo.collections.users).deleteOne({ id: user.id });
             return false;
         } else {
             log.info(`User ${user.username} is still in activation period. Nothing to do here.`);

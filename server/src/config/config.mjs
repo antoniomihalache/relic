@@ -4,7 +4,20 @@ const CONFIG = {
         currentAPIVersion: 'v1'
     },
     mongo: {
-        defaultDb: 'relic-db'
+        defaultDb: 'relic-db',
+        collections: {
+            users: 'users'
+        },
+        defaultIndexes: [
+            {
+                collection: 'users',
+                indexes: [
+                    { name: 'id', order: 1 },
+                    { name: 'email', order: 1 },
+                    { name: 'name', order: 1 }
+                ]
+            }
+        ]
     }
 };
 
