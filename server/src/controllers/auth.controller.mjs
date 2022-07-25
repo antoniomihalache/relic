@@ -1,6 +1,7 @@
 import { sendActivationEmail, isUserStillEligible } from '../services/auth.service.mjs';
 import { getDb } from '../services/mongodb.service.mjs';
 import log from '../services/logger.service.mjs';
+import config from '../config/config.mjs';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
@@ -18,7 +19,7 @@ export const register = async function (req, res, next) {
 
         // check if email and username are already in use
         const userExists = await getDb()
-            .collection('users')
+            .collection(config.mongo.collections.users)
             .findOne(
                 { $or: [{ username: req.body.username }, { email: req.body.email }] },
                 {
@@ -49,7 +50,7 @@ export const register = async function (req, res, next) {
             .randomBytes(6)
             .toString('hex')}`;
 
-        const { acknowledged } = await getDb().collection('users').insertOne(req.body);
+        const { acknowledged } = await getDb().collection(config.mongo.collections.users).insertOne(req.body);
         if (!acknowledged) {
             return res.status(500).json({
                 status: 'error',
@@ -82,7 +83,7 @@ export const activateAccount = async function (req, res, next) {
         }
 
         const user = await getDb()
-            .collection('users')
+            .collection(config.mongo.collections.users)
             .findOne(
                 { id },
                 {
@@ -121,7 +122,7 @@ export const activateAccount = async function (req, res, next) {
             }
         };
 
-        await getDb().collection('users').updateOne({ id }, updateObj);
+        await getDb().collection(config.mongo.collections.users).updateOne({ id }, updateObj);
 
         return res.status(200).json({
             status: 'success',

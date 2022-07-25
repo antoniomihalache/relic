@@ -1,5 +1,6 @@
 import { getDb } from '../services/mongodb.service.mjs';
 import log from '../services/logger.service.mjs';
+import config from '../config/config.mjs';
 
 /**
  * @description This looper class runs every hour and removes registered accounts that
@@ -15,7 +16,7 @@ class RemoveAccountLoop {
         log.debug(`[Loop]: [ Executing Remove Inactivated Account looper. ]`);
 
         const expiredAccounts = await getDb()
-            .collection('users')
+            .collection(config.mongo.collections.users)
             .find(
                 { $and: [{ isAccountActivated: false }, { activateAccountExpires: { $lt: Date.now() } }] },
                 { projection: { id: 1, username: 1, email: 1 } }
@@ -27,7 +28,7 @@ class RemoveAccountLoop {
 
             for (const account of expiredAccounts) {
                 log.info(`Removing expired account for user: ${account.username}, email: ${account.email}`);
-                await getDb().collection('users').deleteOne({ id: account.id });
+                await getDb().collection(config.mongo.collections.users).deleteOne({ id: account.id });
             }
         } else {
             log.info(`No expired account found this iteration... moving on`);
