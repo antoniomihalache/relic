@@ -6,7 +6,9 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "export NODE_ENV=production && node src/server.mjs",
-        "dev": "export NODE_ENV=development && nodemon src/server.mjs"
+        "dev": "export NODE_ENV=development && nodemon src/server.mjs",
+        "dev-win": "set NODE_ENV=development && nodemon src/server.mjs",
+        "prod-win": "set NODE_ENV=production && node src/server.mjs"
     },
     "keywords": [],
     "author": "",
