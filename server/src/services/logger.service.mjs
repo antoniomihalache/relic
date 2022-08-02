@@ -46,13 +46,7 @@ class Logger {
     }
 
     static extractFileNameFromStack = (stackString) => {
-        return stackString.substring(stackString.indexOf('/'), stackString.indexOf(':'));
-    };
-
-    static extractLineNumberFromStack = (stackString) => {
-        let leftSide = stackString.indexOf(':');
-        let rightSide = leftSide + 1 + stackString.substring(stackString.indexOf(':') + 1).indexOf(':');
-        return stackString.substring(leftSide + 1, rightSide);
+        return stackString.substring(stackString.indexOf('///'), stackString.length - 1).slice(3);
     };
 
     static log = (type, message, location = logsLocation) => {
@@ -63,8 +57,7 @@ class Logger {
         let coloredMessage = '';
         let finalMessage = '';
         let fileName = this.extractFileNameFromStack(stackString);
-        let lineNumber = this.extractLineNumberFromStack(stackString);
-        let logMetaData = `${new Date().toISOString()} [ ${type} ] ${fileName}: ${lineNumber}\n`;
+        let logMetaData = `${new Date().toISOString()} [ ${type} ] ${fileName}`;
 
         switch (type) {
             case logTypes.debug:
@@ -83,7 +76,7 @@ class Logger {
                 coloredMessage = logMetaData;
         }
 
-        finalMessage = `${coloredMessage} **** ${message}`;
+        finalMessage = `${coloredMessage} -- ${message}`;
 
         logStdout.write(util.format(`${finalMessage}\n`));
 
@@ -100,7 +93,7 @@ class Logger {
             let logInfo = map.get(location);
             let logFileStream = logInfo.stream;
 
-            let msgForFile = `${logMetaData}${message}`;
+            let msgForFile = `${logMetaData} -- ${message}`;
             logFileStream.write(util.format(`${msgForFile}\n`));
 
             let logFileSize = fs.statSync(logInfo.file).size / 1000000.0; // MB
