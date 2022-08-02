@@ -58,6 +58,14 @@ export const register = async function (req, res, next) {
             });
         }
         const link = await sendActivationEmail(req);
+        if (!link) {
+            await getDb().collection(config.mongo.collections.users).deleteOne({ id: req.body.id });
+            return res.status(500).json({
+                status: 'error',
+                message:
+                    'Could not send activation email. Retry the request and if the problem persists, contact a system administrator.'
+            });
+        }
 
         res.setHeader('activationLink', link);
 

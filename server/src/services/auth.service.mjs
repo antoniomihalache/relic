@@ -11,6 +11,7 @@ const createActivationToken = async function (userId) {
         const validUntil = Date.now() + 24 * 60 * 60 * 1000; // next 24 h
         const updateObj = { $set: { activateToken: token, activateAccountExpires: validUntil } };
         await getDb().collection(config.mongo.collections.users).updateOne({ id: userId }, updateObj);
+        log.debug(`Successfully added token and expiration date for user ${userId}`);
 
         return token;
     } catch (err) {
@@ -30,7 +31,12 @@ export const sendActivationEmail = async function (req) {
             content: message
         });
 
-        email.send();
+        try {
+            await email.send();
+        } catch (err) {
+            log.error(`Something went wrong during email sending. Err:${err}.\nStack: ${err.stack}`);
+            return null;
+        }
         return link;
     } catch (err) {
         log.error(`Could not send account activation email because of error: ${err}.\nStack: ${err.stack}`);
