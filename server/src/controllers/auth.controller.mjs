@@ -1,4 +1,5 @@
 import { sendActivationEmail, isUserStillEligible } from '../services/auth.service.mjs';
+import { notifyRootAccount } from '../services/email.service.mjs';
 import { getDb } from '../services/mongodb.service.mjs';
 import log from '../services/logger.service.mjs';
 import config from '../config/config.mjs';
@@ -60,6 +61,14 @@ export const register = async function (req, res, next) {
         const link = await sendActivationEmail(req);
         if (!link) {
             await getDb().collection(config.mongo.collections.users).deleteOne({ id: req.body.id });
+            const event = {
+                ...config.systemEvents.NEW_USER_REGISTRATION_FAILED,
+                message: `A new user (username: ${req.body.username}, email: ${
+                    req.body.email
+                }) tried to register on ${new Date().toISOString()} but failed. Check the logs to see what happened.`
+            };
+            notifyRootAccount(event);
+
             return res.status(500).json({
                 status: 'error',
                 message:
@@ -68,6 +77,14 @@ export const register = async function (req, res, next) {
         }
 
         res.setHeader('activationLink', link);
+        // notify root account that a new user has been registered
+        const event = {
+            ...config.systemEvents.NEW_USER_REGISTERED,
+            message: `A new user with name: ${req.body.username} and email: ${
+                req.body.email
+            } was registered on ${new Date().toISOString()}.`
+        };
+        notifyRootAccount(event);
 
         return res.status(201).json({
             status: 'success',
@@ -98,6 +115,7 @@ export const activateAccount = async function (req, res, next) {
                     projection: {
                         id: 1,
                         username: 1,
+                        email: 1,
                         _id: 0,
                         activateAccountExpires: 1,
                         isAccountActivated: 1,
@@ -131,6 +149,16 @@ export const activateAccount = async function (req, res, next) {
         };
 
         await getDb().collection(config.mongo.collections.users).updateOne({ id }, updateObj);
+
+        // notify root that a new account has been registered
+        const event = {
+            ...config.systemEvents.NEW_ACCOUNT_ACTIVATED,
+            message: `The account for user ${
+                user.email
+            } has been successfully activated at ${new Date().toISOString()}.`
+        };
+
+        notifyRootAccount(event);
 
         return res.status(200).json({
             status: 'success',
