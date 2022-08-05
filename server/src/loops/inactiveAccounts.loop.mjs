@@ -1,3 +1,4 @@
+import { notifyRootAccount } from '../services/email.service.mjs';
 import { getDb } from '../services/mongodb.service.mjs';
 import log from '../services/logger.service.mjs';
 import config from '../config/config.mjs';
@@ -29,6 +30,13 @@ class RemoveAccountLoop {
             for (const account of expiredAccounts) {
                 log.info(`Removing expired account for user: ${account.username}, email: ${account.email}`);
                 await getDb().collection(config.mongo.collections.users).deleteOne({ id: account.id });
+                const event = {
+                    ...config.systemEvents.EXPIRED_ACCOUNT_REMOVED,
+                    message: `Expired account for user ${account.username} with email ${
+                        account.email
+                    } was removed from our database at ${new Date().toISOString()}.`
+                };
+                notifyRootAccount(event);
             }
         } else {
             log.info(`No expired account found this iteration... moving on`);

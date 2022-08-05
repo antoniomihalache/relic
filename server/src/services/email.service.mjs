@@ -89,4 +89,27 @@ class EmailService {
     }
 }
 
+/**
+ * @description This function sends an email to the root account registered in the app,
+ * containing the type and the message of the event
+ * @param {} event
+ * @returns <void>
+ */
+export const notifyRootAccount = (event) => {
+    //TODO: store events in db as system events when the api will be ready.
+    try {
+        log.info(`Notifying root account. "${event.type}" just happened with message: ${event.message}`);
+        const email = new EmailService({
+            recipients: process.env.ROOT_ACCOUNT_EMAIL,
+            subject: `System Administration [ Relic App ] - ${event.type}`,
+            content: event.message
+        });
+
+        email.send();
+    } catch (err) {
+        log.error(`Error while sending message to root account. Err: ${err}.\n Stack: ${err.stack}`);
+        // do nothing here, don't crash the process
+    }
+};
+
 export default EmailService;
