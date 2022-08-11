@@ -35,6 +35,10 @@ const CONFIG = {
         NEW_USER_REGISTRATION_FAILED: {
             type: 'new_user_registration_failed',
             title: 'A new user tried to register for the app, but failed'
+        },
+        ACCOUNT_ACTIVATION_FAILED: {
+            type: 'account_activation_failed',
+            title: 'An attempt to activate an account was made but it failed.'
         }
     }
 };

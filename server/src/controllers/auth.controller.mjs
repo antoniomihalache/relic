@@ -43,7 +43,7 @@ export const register = async function (req, res, next) {
             });
         }
 
-        //remove confirmPassword, it has served its purpose at this level
+        // remove confirmPassword, it has served its purpose at this level
         delete req.body.confirmPassword;
 
         req.body.password = await bcrypt.hash(req.body.password, 12);
@@ -99,18 +99,28 @@ export const register = async function (req, res, next) {
 // controller for GET /activate/:token
 export const activateAccount = async function (req, res, next) {
     try {
-        const { id } = jwt.verify(req.params.token, process.env.JWT_ACCOUNT_ACTIVATION_SECRET);
-        if (!id) {
+        let userId;
+        try {
+            const { id } = jwt.verify(req.params.token, process.env.JWT_ACCOUNT_ACTIVATION_SECRET);
+            userId = id;
+        } catch (err) {
+            log.error(`Someone tried to activate an account with an invalid token (${req.params.token}).`);
+            const event = {
+                ...config.systemEvents.ACCOUNT_ACTIVATION_FAILED,
+                message: `Someone tried to activate an account with an invalid token (${req.params.token}).`
+            };
+
+            notifyRootAccount(event);
             return res.status(400).json({
                 status: 'fail',
-                message: 'Could not verify your token signature'
+                message: 'Invalid url. Please check your data and send the request again.'
             });
         }
 
         const user = await getDb()
             .collection(config.mongo.collections.users)
             .findOne(
-                { id },
+                { id: userId },
                 {
                     projection: {
                         id: 1,
@@ -131,6 +141,20 @@ export const activateAccount = async function (req, res, next) {
             });
         }
 
+        if (req.params.token.toString().toLowerCase() !== user.activateToken.toString().toLowerCase()) {
+            const event = {
+                ...config.systemEvents.ACCOUNT_ACTIVATION_FAILED,
+                message: `Account activation for user: ${user.username}, mail: ${user.email} failed. Provided token does not match the one stored on the user.`
+            };
+
+            notifyRootAccount(event);
+
+            return res.status(400).json({
+                status: 'fail',
+                message: 'Invalid url. Please check your data and send the request again.'
+            });
+        }
+
         const userIsValid = await isUserStillEligible(user);
         if (!userIsValid) {
             return res.status(400).json({
@@ -148,7 +172,7 @@ export const activateAccount = async function (req, res, next) {
             }
         };
 
-        await getDb().collection(config.mongo.collections.users).updateOne({ id }, updateObj);
+        await getDb().collection(config.mongo.collections.users).updateOne({ id: userId }, updateObj);
 
         // notify root that a new account has been registered
         const event = {
