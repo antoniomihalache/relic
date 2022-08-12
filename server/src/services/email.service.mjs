@@ -1,3 +1,4 @@
+import { raiseEvent } from './events.service.mjs';
 import log from './logger.service.mjs';
 import nodemailer from 'nodemailer';
 
@@ -96,12 +97,12 @@ class EmailService {
  * @returns <void>
  */
 export const notifyRootAccount = (event) => {
-    //TODO: store events in db as system events when the api will be ready.
+    raiseEvent(event);
     try {
-        log.info(`Notifying root account. "${event.type}" just happened with message: ${event.message}`);
+        log.info(`Notifying root account. "${event.label}" was raised with message: ${event.message}`);
         const email = new EmailService({
             recipients: process.env.ROOT_ACCOUNT_EMAIL,
-            subject: `System Administration [ Relic App ] - ${event.type}`,
+            subject: `System Administration [ Relic App ] - ${event.label}`,
             content: event.message
         });
 

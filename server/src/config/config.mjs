@@ -8,7 +8,8 @@ const CONFIG = {
         devDb: 'relic-db-dev',
         testDb: 'relic-db-test',
         collections: {
-            users: 'users'
+            users: 'users',
+            events: 'events'
         },
         defaultIndexes: [
             {
@@ -18,31 +19,51 @@ const CONFIG = {
                     { name: 'email', order: 1 },
                     { name: 'name', order: 1 }
                 ]
+            },
+            {
+                collection: 'events',
+                indexes: [{ name: 'id', order: 1 }]
             }
         ]
     },
     systemEvents: {
         EXPIRED_ACCOUNT_REMOVED: {
-            type: 'expired_account_removed',
-            title: 'An expired account was removed from our database.'
+            label: 'expired_account_removed',
+            title: 'An expired account was removed from our database.',
+            requiredRoles: ['root', 'admin'],
+            type: 'system',
+            severity: 'Informational'
         },
         NEW_USER_REGISTERED: {
-            type: 'new_user_registered',
-            title: 'A new user was registered on the app.'
+            label: 'new_user_registered',
+            title: 'A new user was registered on the app.',
+            requiredRoles: ['root', 'admin'],
+            type: 'system',
+            severity: 'Informational'
         },
         NEW_ACCOUNT_ACTIVATED: {
-            type: 'new_account_activated',
-            title: 'A new account was activated on the app.'
+            label: 'new_account_activated',
+            title: 'A new account was activated on the app.',
+            requiredRoles: ['root', 'admin'],
+            type: 'system',
+            severity: 'Informational'
         },
         NEW_USER_REGISTRATION_FAILED: {
-            type: 'new_user_registration_failed',
-            title: 'A new user tried to register for the app, but failed'
+            label: 'new_user_registration_failed',
+            title: 'A new user tried to register for the app, but failed',
+            requiredRoles: ['root', 'admin'],
+            type: 'system',
+            severity: 'Critical'
         },
         ACCOUNT_ACTIVATION_FAILED: {
-            type: 'account_activation_failed',
-            title: 'An attempt to activate an account was made but it failed.'
+            label: 'account_activation_failed',
+            title: 'An attempt to activate an account was made but it failed.',
+            requiredRoles: ['root', 'admin'],
+            type: 'system',
+            severity: 'Critical'
         }
-    }
+    },
+    userEvents: {}
 };
 
 export default CONFIG;
