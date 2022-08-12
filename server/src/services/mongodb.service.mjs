@@ -6,11 +6,26 @@ const url = process.env.NODE_ENV === 'development' ? 'mongodb://localhost:27017'
 const client = new MongoClient(url);
 
 let _db;
+let databaseName;
+
+switch (process.env.NODE_ENV) {
+    case 'production':
+        databaseName = config.mongo.defaultDb;
+        break;
+    case 'development':
+        databaseName = config.mongo.devDb;
+        break;
+    case 'test':
+        databaseName = config.mongo.testDb;
+        break;
+    default:
+        databaseName = config.mongo.defaultDb;
+}
 
 export const connectDb = async function () {
     try {
         const connection = await client.connect();
-        _db = connection.db(config.mongo.defaultDb);
+        _db = connection.db(databaseName);
     } catch (err) {
         log.error(`Could not connect to mongo because of error: ${err}.\n Stack: ${err.stack}`);
         throw new Error(err);
