@@ -5,6 +5,8 @@ const CONFIG = {
     },
     mongo: {
         defaultDb: 'relic-db',
+        devDb: 'relic-db-dev',
+        testDb: 'relic-db-test',
         collections: {
             users: 'users'
         },
