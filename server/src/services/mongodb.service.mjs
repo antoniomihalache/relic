@@ -76,7 +76,7 @@ export const createIndexes = async function (collection, desiredIndexes) {
                 idx[index.name] = index.order;
                 await getDb().collection(collection).createIndex(idx);
             } else {
-                log.info(`Index ${index.name} already exists. Won't recreate it`);
+                log.info(`Index ${index.name} for collection "${collection}" already exists. Won't recreate it`);
             }
         }
         log.debug(`Done with indexes on ${collection} collection.`);

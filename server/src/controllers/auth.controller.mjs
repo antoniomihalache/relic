@@ -80,9 +80,9 @@ export const register = async function (req, res, next) {
         // notify root account that a new user has been registered
         const event = {
             ...config.systemEvents.NEW_USER_REGISTERED,
-            message: `A new user with name: ${req.body.username} and email: ${
+            message: `A new user with name: "${req.body.username}" and email: "${
                 req.body.email
-            } was registered on ${new Date().toISOString()}.`
+            }" was registered on ${new Date().toISOString()}.`
         };
         notifyRootAccount(event);
 
@@ -144,7 +144,7 @@ export const activateAccount = async function (req, res, next) {
         if (req.params.token.toString().toLowerCase() !== user.activateToken.toString().toLowerCase()) {
             const event = {
                 ...config.systemEvents.ACCOUNT_ACTIVATION_FAILED,
-                message: `Account activation for user: ${user.username}, mail: ${user.email} failed. Provided token does not match the one stored on the user.`
+                message: `Account activation for user: "${user.username}", mail: "${user.email}" failed. Provided token does not match the one stored on the user.`
             };
 
             notifyRootAccount(event);
@@ -177,9 +177,9 @@ export const activateAccount = async function (req, res, next) {
         // notify root that a new account has been registered
         const event = {
             ...config.systemEvents.NEW_ACCOUNT_ACTIVATED,
-            message: `The account for user ${
+            message: `The account for user "${
                 user.email
-            } has been successfully activated at ${new Date().toISOString()}.`
+            }" has been successfully activated at ${new Date().toISOString()}.`
         };
 
         notifyRootAccount(event);
