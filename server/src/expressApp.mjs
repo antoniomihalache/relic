@@ -1,4 +1,5 @@
 import errorHandler from './controllers/error.controller.mjs';
+import eventsRouter from './routes/events.router.mjs';
 import mongoSanitize from 'express-mongo-sanitize';
 import authRouter from './routes/auth.router.mjs';
 import log from './services/logger.service.mjs';
@@ -37,6 +38,7 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use('/api/v1/events', eventsRouter);
 app.use('/', authRouter);
 
 // eslint-disable-next-line
